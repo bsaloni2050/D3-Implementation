@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	
+	<title></title>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+
+	 <script src="https://d3js.org/d3.v4.min.js"></script>
+	 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+	<script src="//d3js.org/topojson.v1.min.js"></script>
+
+
+	<!-- <link rel="stylesheet" type="text/css" href="/Users/salonibindra/Desktop/assignment/style.css">
+	 //<script type="text/javascript" src="/Users/salonibindra/Desktop/assignment/data123.js"></script>  
+ -->
+
+ <style>
+ 	
+
+ 	@import url(https://fonts.googleapis.com/css?family=Raleway);
+$w: 100%;
+$h: 100%;
+$font-stack: 'Raleway', Helvetica, sans-serif;
+$place-fill: #444;
+$tip-color: #e2e3e3;
+$gray: #333;
+$transparent: rgba(0,0,0,.7);
+body{
+  width: $w;
+  height: $h;  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+#intro{
+  width: $w;
+  border-bottom: 2px solid $gray;
+}
+h1 {
+  font: bold 2rem $font-stack;
+  margin: 1rem auto 0;
+}
+h2{
+  font: 1rem $font-stack;
+  margin: 1rem auto 0;
+}
+#footer {
+  width: $w;  
+  position: absolute;
+  bottom: 0px;
+  font: .75rem $font-stack;
+}
+#legend{
+  position: absolute;
+  right: 0;
+  margin: 10px;
+  padding: 10px;
+}
+#legend p{
+  font: .75rem $font-stack;
+}
+.axis path {
+  fill: none;
+}
+#map{
+  margin-top: 7rem;
+}
+text {
+  pointer-events: none;
+  font: .75rem $font-stack;
+}
+.country {
+  fill: $gray;
+}
+.country :hover {
+  stroke: $gray;
+  stroke-width: 2.5px;
+}
+.place,
+.place-label {
+fill: $place-fill;
+}
+.d3-tip {
+  font: 1rem $font-stack;
+  padding: 10px;
+  background: $transparent;
+  color: $tip-color;
+}
+
+
+
+
+
+
+ </style>
+
+</head>
+<body>
+
+
+<div id="map"></div>
+
+</div>
+</body>
+<script>
+
+	// Variables
+var width = 2000,
+	height = 700,
+
+	svg = d3.select("#map")
+	.append("svg")
+	.attr("width", width)
+	.attr("height", height),
+
+	colorScaleR = ['#FFF','#FFFF66','#FFFF00'],// yellow
+	colorScaleD = ['#FFF','#9999ff','#00F'],// blue
+
+
+	color = d3.scale.linear()
+	//.domain([0, 6.5])
+	.domain([0,462892,976883461940])
+	.range(colorScaleD),
+
+	colorr = d3.scale.linear()
+	//.domain([0, 6.5])
+	.domain([0,37777,37331720630])
+	.range(colorScaleR),
+
+	data = d3.map(),
+
+	projection = d3.geo.equirectangular()
+	//.center([-96.03542, 41.69553])
+	.scale(200)
+	.translate([width / 2, height / 2]),
+
+	path = d3.geo.path()
+	.projection(projection),
+
+	tip = d3.tip()
+	.attr('class', 'd3-tip')
+	.offset([-20, 0])
+	.html(function(d) {
+		return "<strong>" + d.properties.name + " - </strong><span>" + data.get(d.properties.name) + "  donations </span>"
+	});
+
+// Queue
+d3.queue()
+	.defer(d3.json,"countries.geo.json")
+	//.defer(d3.json, "https://rawgit.com/geobabbler/us-state-squares/380435e6d7295251519797ecc38d3ee91fb05a01/state_squares.geojson")
+	//.defer(d3.csv, "https://raw.githubusercontent.com/wboykinm/us-state-squares/9bb9d0d820569f978aaebe2d349eae12d56f2b97/example/bpc.csv", 
+	.defer(d3.csv, "donation.csv", function(d) {
+		data.set(d.country,+d.donated,+d.received,d.code);
+})
+	.await(ready);
+
+// Build map and labels
+function ready(error, d) {
+  svg.append("g")
+    .attr("class", "country")
+    .selectAll("path")
+    .data(d.features)
+    .enter()
+    .append("path")
+    .attr("class", function(d) {
+    	return d.properties.name;
+
+     // return d.properties.name;
+    })
+    .style("fill", function(d) {
+      return color(data.get(d.properties.name))
+    })
+    .attr("d", path)
+		.on('mouseover', tip.show)
+		.on('mouseout', tip.hide);
+	svg.call(tip);
+
+}
+
+d3.queue()
+	.defer(d3.json,"countries.geo.json")
+	.defer(d3.csv, "donation.csv", function(d) {
+		data.set(d.country,+d.received,d.code);
+})
+	.await(ready2);
+
+
+function ready2(error, d) {
+  svg.append("g")
+    .attr("class", "country")
+    .selectAll("path")
+    .data(d.features)
+    .enter()
+    .append("path")
+    .attr("class", function(d) {
+    	return d.properties.name;
+
+     // return d.properties.name;
+    })
+    .style("fill", function(d) {
+      return colorr(data.get(d.properties.name))
+    })
+    .attr("d", path)
+		.on('mouseover', tip.show)
+		.on('mouseout', tip.hide);
+	svg.call(tip);
+
+}
+	
+	// //Label
+	// var w = 260,
+	// 		h = 40,
+	// 		key = d3.select('#legend')
+	// 		.append('svg')
+	// 		.attr('width', w)
+	// 		.attr('height', h),
+	// 		legend = key.append('defs')
+	// 		.append('svg:linearGradient')
+	// 		.attr('id', 'gradient')
+	// 		.attr('y1', '100%')
+	// 		.attr('x1', '0%')
+	// 		.attr('y2', '100%')
+	// 		.attr('x2', '100%')
+	// legend.append('stop')
+	// 	.attr('offset', '0%')
+	// 	.attr('stop-color', colorScale[0])
+	// legend.append('stop')
+	// 	.attr('offset', '100%')
+	// 	.attr('stop-color', colorScale[1])
+	// key.append('rect')
+	// 	.attr('width', w - 10)
+	// 	.attr('height', h - 20)
+	// 	.style('fill', 'url(#gradient)')
+	// 	.attr('transform', 'translate(0,0)'),
+	// y = d3.scale.linear()
+	// 	.range([0, 250])
+	// 	.domain([0, 6.5]),
+	// yAxis = d3.svg.axis()
+	// 	.scale(y)
+	// 	.ticks(4);
+	// key.append('g')
+	// 	.attr('class', 'y axis')
+	// 	.attr('transform', 'translate(10,15)')
+	// 	.call(yAxis);
+	
+	// //Animations
+	// var tl = new TimelineLite(),
+	// 		intro = ('#intro'),
+	// 		map = ('#map'),
+	// 		legend = ('#legend'),
+	// 		footer = ('#footer');
+	// tl
+	// 	.from(intro, 1, {
+	// 		y: '95%',
+	// 		scale: .98,
+	// 		ease: Power1.easeInOut,
+	// 		autoAlpha: 0})
+	// 	.from(map, .75, {
+	// 		y: '95%',
+	// 		autoAlpha: 0
+	// 	}, '+=.5')
+	// 	.from(legend, .75, {
+	// 		x: 1000,
+	// 		autoAlpha: 0
+	// 	}, '-=.75')
+	// 	.from(footer, .75, {
+	// 		y: '95%',
+	// 		scale: .9,
+	// 		autoAlpha: 0
+	// 	});
+
+
+
+
+
+	
+
+
+</script>
+
+</html>
+

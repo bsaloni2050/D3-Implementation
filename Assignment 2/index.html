@@ -1,0 +1,122 @@
+<html>
+    <header>
+        <title>D3 Lab 2</title>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </header>
+   
+    <body>
+        <div position:relative; width = "100%" height = "100%">
+
+             <div position:relative; width = "50%" height = "1000" style="float:left;">
+
+                <svg id="chart1" style="border:solid 1px black" width="100" height="100">
+                    <g>
+
+                        <circle r="50" cx="50" cy ="50" fill="lightgrey" />
+                        <rect x="0" y="40" width ="100" height="15" style="fill:orange;stroke:black" />
+                        <text dx="50" dy="35" text-anchor="middle" allignment base="center" font-family="Arial" font-weight="bold" font-size="30" > D3 </text>
+                        <text dx="50" dy="75" text-anchor="middle" allignment base="center" font-weight="bold" font-family="Arial" font-size="15" > SVG </text>
+
+                    </g>
+                </svg>
+            </div>
+
+            <div position:relative; width = "50%" height = "50%" style="float:middle;" >
+                <div id ="version">D3 loaded: version= </div><br>
+                <div id ="countd">Total number of records = </div><br>
+                <div>Data -1   </div>
+                <svg id ="chart" style="border:solid; 1 px black"> </svg>
+                <div style="float:middle;">Data -2  </div>
+                <svg id ="chart2" height = "200" style="border:solid; 1 px black"> </svg>
+
+            </div>
+        </div>
+    </body>
+
+    <script>
+
+        console.log(d3.version)
+        document.getElementById("version").innerText+=d3.version
+
+        function darwData(data){
+           let container = d3.select("#chart");
+           let items= container
+                        .selectAll("g")
+                        .data(data)
+                        .enter()
+                        .append("g")
+                        .attr("transform", d =>`translate(${d.x},${d.y})`)
+
+                items.append("rect")
+                        .attr("width", d =>d.width)
+                        .attr("height", d =>d.height)
+                        .attr("fill", d =>d.color)
+                        ;
+
+        }
+
+        d3.csv("data.csv" , (error, data )=>{
+            if(error){
+                alert("error loading data")
+            }
+            else{
+                 x = data.length;
+                console.log(data.length);
+                document.getElementById("countd").innerText+= x
+                darwData(data)
+
+            }
+        })
+
+
+        function darwData2(data){
+           let container = d3.select("#chart2");
+
+            let y       =d3.scaleLinear()
+                            .range([25,275])
+                            // .domain( [0 , d3.max(data, d => d.GDP)]);
+                            .domain( [0 ,  19417.144]);
+                               
+            let scaleY = d3.scaleOrdinal()
+                          .range([-10, 0,30,60,90,120,150])
+                          .domain([data.map(d =>d.Country)]);
+
+            let colors = d3.scaleOrdinal(d3.schemeCategory10)
+                           .range(["#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b"])
+
+           
+           let items= container
+                        .selectAll("g")
+                        .data(data)
+                        .enter()
+                        .append("g")
+                        .attr("transform", d =>`translate(${0},${scaleY(d.Country)+20})`)
+
+
+                items.append("rect")
+                       .attr("width", d => y(d.GDP))
+                        .attr("height", 20)
+                        .attr("fill", d => colors(d.GDP))
+
+                items.append("text")
+                    .text(d => d.Country)
+                  // .attr("y", d => ((textscale(d.GDP))))
+                 //   .attr("dx", (d => y(d.GDP)+20))
+                   // .attr("y", d =>( (30*((scaleY(d.Country)/30)))-30))
+
+                   .attr("text-anchor","start")
+
+        }
+
+        d3.csv("data2.csv" , (error, data )=>{
+            if(error){
+                alert("error loading data")
+            }
+            else{
+                darwData2(data)
+                }
+        })
+        
+    </script>
+    
+</html>

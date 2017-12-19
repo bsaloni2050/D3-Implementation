@@ -1,0 +1,196 @@
+<html>
+        <header>
+            <title>Geo Visualization</title>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+            <style>
+                svg {
+                    border: solid 1px #000;
+                }
+                #container {
+                    text-align: center
+                }
+            </style>
+        </header>
+        <body>
+            <div id="container">
+                <h1>
+                        Change in the distribution of donations across the globe                </h1>
+
+                <h2> Money Donation</h2>
+                <svg id="donation" height="500px" width="2000px" />
+                <br>
+                <br>
+                <br>
+                <h2> Money Received</h2>
+
+                <svg id="received" height="500px" width="2000px" />
+                
+            </div>
+        </body>
+        <script>
+            //Global Variables
+            const CHART_WIDTH=2000
+            const CHART_HEIGHT=500
+            const margin = {
+                left: 100,
+                top: 50,
+                bottom: 100,
+                right: 30
+            }
+
+
+            const width = CHART_WIDTH - margin.left - margin.right;
+            const height = CHART_HEIGHT - margin.top - margin.bottom;
+
+function dispDonations(data){
+
+        let container = d3.select("#donation");
+        let container1 = d3.select("#received");
+
+
+
+        console.log("hi");
+         data.forEach(function(d) {
+        d.year = +d.year;
+        d.contri = +d.donated;
+        d.rece = +d.received;
+                });
+
+        var x = d3.time.scale().range([0, width]);
+        var y = d3.scale.linear().range([height, 0]);
+
+        var color = d3.scale.category10();  // set the colour scale
+
+
+        // Define the axes
+        var xAxis = d3.svg.axis().scale(x)
+            .orient("bottom").tickFormat(d3.format("d"));
+
+        var yAxis = d3.svg.axis().scale(y)
+            .orient("left").tickFormat(d => d/1e5);
+
+
+
+        var priceline = d3.svg.line()
+            .x(function(d) { return x(d.year); })
+            .y(function(d) { return y(d.contri); });
+    
+
+     var priceline1 = d3.svg.line()
+            .x(function(d) { return x(d.year); })
+            .y(function(d) { return y(d.rece); });
+    
+
+        // Scale the range of the data
+        x.domain(d3.extent(data, function(d) { return d.year; }));
+        y.domain([0, d3.max(data, function(d) { return d.contri; })]); 
+
+        // Nest the entries by code
+        var dataNest = d3.nest()
+            .key(function(d) {return d.code;})
+            .entries(data);
+
+
+        let items= container
+                        .selectAll("g")
+                        .data(data)
+                        .enter()
+                      //  .append("g")
+                      
+        let items1= container1
+                        .selectAll("g")
+                        .data(data)
+                        .enter()
+               
+
+        // Loop through each code / key
+        dataNest.forEach(function(d) {
+
+            items.append("path")
+                .attr("class", "line")
+                .attr("d", priceline(d.values))
+                .style("stroke", function() { // Add dynamically
+                    return d.color = color(d.key); })
+                .attr('stroke-width', 1)
+                .attr('fill', 'none');
+
+                 items1.append("path")
+                .attr("class", "line")
+                .attr("d", priceline1(d.values))
+                .style("stroke", function() { // Add dynamically
+                    return d.color = color(d.key); })
+                .attr('stroke-width', 1)
+                .attr('fill', 'none');
+
+    });
+
+        // Add the X Axis
+        items.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis)
+            .append("text")
+                .text("Year")
+                .attr("dx", width/2)
+                .attr("dy", margin.bottom)
+                .attr("text-anchor", "middle")
+                .attr("fill", "black");
+
+        // Add the Y Axis
+        items.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            // .text("Thousand $")
+
+
+             items1.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis)
+            .append("text")
+                .text("Year")
+                .attr("dx", width/2)
+                .attr("dy", margin.bottom)
+                .attr("text-anchor", "middle")
+                .attr("fill", "black");
+
+        // Add the Y Axis
+        items1.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+ function loadData(cb){
+                d3.csv("donation_by_year.csv", (err, data) => {
+                    cb(data)
+                })
+            }
+
+
+function main(){ //Main function
+                //Set the width and height of the charts SVG
+                d3.selectAll("#donation, #received").attr("width", CHART_WIDTH)
+                d3.selectAll("#donation, #received").attr("height", CHART_HEIGHT)
+
+                //Load the data
+                loadData((data) => {
+                    dispDonations(data)
+                })
+            }
+
+            main()
+
+</script>
+</html>

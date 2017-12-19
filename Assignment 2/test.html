@@ -1,0 +1,37 @@
+<html>
+    <header>
+        <title>D3 Lab 2</title>
+ <script src="https://d3js.org/d3.v4.min.js">
+
+console.log(d3.version)
+
+      d3.select("version").text(d3.version)
+        
+    </script>
+    </header>
+    <body>
+        <div id ="loadn">D3 loadeding data=    </div>
+
+
+<div id ="version">D3 loaded: version=    </div>
+    </body>
+
+    <script>
+    	d3.csv("data.csv" , (error, data )=>{
+    		if(error){
+    			alert("error loading data")
+    		}
+    		else{
+    			console.log(data.length);
+    		}
+    	})
+		console.log(d3.version)
+  		document.getElementById("version").innerText+=d3.version
+      	d3.select("version").text(d3.version)
+
+      	 document.getElementById("loadn").innerText+= data.length
+
+        
+    </script>
+   
+</html>
