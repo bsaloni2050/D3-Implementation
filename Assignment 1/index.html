@@ -1,0 +1,67 @@
+<html>
+<head>
+<style type="text/css">
+  
+  body{
+    margin: 100px;
+    width: auto;
+  }
+  
+    .container {
+      width:600px;
+      height:100px;
+      background-color: lightgrey;
+      border: 15px solid grey;
+      padding: 25px;
+      margin: 5px;
+}
+  
+</style>  
+
+<script type='text/javascript'>
+
+function display(value)
+{
+  if(value=='html')
+  {
+      disp = "Hypertext Markup Language, a standardized system for tagging text files to achieve font, color, graphic, and hyperlink effects on World Wide Web pages.";
+  }
+  else if(value=='css')
+     {
+      disp = "CSS stands for Cascading Style Sheets. It is the language for describing the presentation of Web pages, including colors, layout, and fonts";
+  } else if(value=='js')
+     {
+      disp = "JavaScript® (often shortened to JS) is a lightweight, interpreted, object-oriented language with first-class functions, and is best known as the scripting language for Web pages";
+  } else if(value=='svg')
+     {
+      disp = "SVG is a graphical language. It is an XML-based vector image format for two-dimensional graphics with support for interactivity and animation. ... SVG images and their behaviors are defined in XML text files";
+  }
+
+
+    document.getElementById("thetext").innerHTML = disp;
+  
+}
+
+</script>
+</head>
+
+
+<body>
+
+<h1 align="center">D3 Lab</h1>
+<div style="width: 100%;" class="container">
+
+  <div style="float:left; width:50%" class="left">
+    <ul>
+      <li><a href="javascript:void(0);" value="html" onclick="display('html')">HTML</a></li>
+      <li><a href="javascript:void(0);" value="css" onclick="display('css')">CSS</a></li>
+      <li><a href="javascript:void(0);" value="js" onclick="display('js')">Javascript</a></li>
+      <li><a href="javascript:void(0);" value="svg" onclick="display('svg')">SVG</a></li>
+    </ul>
+  </div>
+  <br>
+  <div style="float:right; width:50% " class="right" id ="thetext"> </div>
+</div>
+  
+</body>
+</html>
